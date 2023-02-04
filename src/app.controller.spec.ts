@@ -1,17 +1,27 @@
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-describe('AppController', () => {
+describe('App e2e tests', () => {
   let appController: AppController;
 
-  beforeEach(async () => {
+  let appCreated: INestApplication;
+  beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [AppService],
     }).compile();
 
+    appCreated = app.createNestApplication();
+    appCreated.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    await app.init();
+
     appController = app.get<AppController>(AppController);
+  });
+
+  afterAll(() => {
+    appCreated.close();
   });
 
   describe('root', () => {
@@ -19,4 +29,5 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
   });
+  it.todo('should pass');
 });
